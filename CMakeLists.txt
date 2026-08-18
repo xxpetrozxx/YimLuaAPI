@@ -6,6 +6,8 @@ include(cmake/crosscompile.cmake)
 # Change the name here to change it everywhere
 project(YimLuaAPI CXX ASM_MASM)
 
+set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreadedDLL")
+
 set(SRC_DIR "${PROJECT_SOURCE_DIR}/src")
 
 # Build options
