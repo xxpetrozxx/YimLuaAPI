@@ -1,0 +1,5 @@
+git clone https://github.com/TupoyeMenu/YimLuaAPI.git
+cd YimLuaAPI
+mkdir build
+cd build
+cmake ..
