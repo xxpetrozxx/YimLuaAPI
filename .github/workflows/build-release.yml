@@ -1,0 +1,57 @@
+name: Build YimLuaAPI Release
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-2022
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure CMake
+        run: >
+          cmake
+          -S .
+          -B build
+          -G "Visual Studio 17 2022"
+          -A x64
+
+      - name: Build Release
+        run: cmake --build build --config Release --parallel
+
+      - name: Find YimLuaAPI.dll
+        shell: pwsh
+        run: |
+          $dll = Get-ChildItem -Path build -Filter "YimLuaAPI.dll" -Recurse -File |
+            Where-Object { $_.FullName -match "\\Release\\" } |
+            Select-Object -First 1
+
+          if (-not $dll) {
+            Write-Error "YimLuaAPI.dll was not found in a Release directory."
+            exit 1
+          }
+
+          Write-Host "Found: $($dll.FullName)"
+          "DLL_PATH=$($dll.FullName)" >> $env:GITHUB_ENV
+
+      - name: Verify Release dependencies
+        shell: pwsh
+        run: |
+          Write-Host "Built DLL: $env:DLL_PATH"
+          Get-Item $env:DLL_PATH | Format-List FullName,Length
+
+      - name: Package
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path artifact | Out-Null
+          Copy-Item "$env:DLL_PATH" "artifact\YimLuaAPI.dll"
+
+      - name: Upload YimLuaAPI.dll
+        uses: actions/upload-artifact@v4
+        with:
+          name: YimLuaAPI-Release-x64
+          path: artifact/YimLuaAPI.dll
+          if-no-files-found: error
