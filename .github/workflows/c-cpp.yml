@@ -1,0 +1,5 @@
+git clone https://github.com/TupoyeMenu/BigBaseV2-fix.git
+cd BigBaseV2-fix
+mkdir build
+cd build
+cmake ..
